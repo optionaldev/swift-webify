@@ -13,7 +13,7 @@ input="$(sed "s/>/\&gt;/" <<< "$input")"
 
 echo "Colorizing keywords.."
 
-keywords=("class" "false" "func" "if" "in" "init" "import" "let" "nil" "private" "return" "self" "struct" "true" "var")
+keywords=("class" "false" "func" "if" "in" "init" "import" "let" "nil" "private" "return" "self" "some" "struct" "true" "var")
 
 for keyword in ${keywords[@]} 
 do
@@ -37,7 +37,7 @@ input="$(sed "s/_cl_ass_/class/g" <<< "$input")"
 
 echo "Colorizing built-in types.."
 
-builtinTypes=("UIViewRepresentable" "NSObject" "UITextFieldDelegate" "String" "Binding" "UIViewRepresentableContext" "UITextField" "NotificationCenter" "Bool")
+builtinTypes=("Binding" "Bool" "Color" "Context"  "NotificationCenter" "NSObject" "String" "State" "UITextField" "UITextFieldDelegate" "UIViewRepresentable" "UIViewRepresentableContext" "View" "VStack")
 
 for builtinType in ${builtinTypes[@]} 
 do
@@ -54,7 +54,7 @@ done
 
 echo "Colorizing operators.."
 
-operators=("&&" "||")
+operators=("&&" "||" "$")
 
 for operator in ${operators[@]} 
 do
@@ -69,13 +69,28 @@ input="$(sed "s/\([[:alnum:]|[:space:]]\)!\([[:alnum:]|[:space:]]\)/\1<span clas
 
 echo "Colorizing other methods.."
 
-builtinValues=("addObserver" "autocapitalizationType" "becomeFirstResponder" "center" "default" "coordinator" "delegate" "main" "none" "text" "textAlignment" "textDidChangeNotification" "zero")
+builtinValues=("addObserver" "autocapitalizationType" "background" "becomeFirstResponder" "center" "default" "coordinator" "delegate" "main" "none" "onChange" "red" "text" "textAlignment" "textDidChangeNotification" "zero")
 
 for builtinValue in ${builtinValues[@]} 
 do
-  input="$(sed "s/\.\($builtinValue\)\([^[:alnum:]]\)/\.<span class=\"builtinValue\">\1<\/span>\2/g" <<< "$input")"
+  input="$(sed "s/\.\($builtinValue\)\([^[:alnum:]]\)/\.<span class=\"otherBuiltin\">\1<\/span>\2/g" <<< "$input")"
   
-  input="$(sed -E "s/\.($builtinValue)$/\.<span class=\"builtinValue\">\1<\/span>/" <<< "$input")"
+  input="$(sed -E "s/\.($builtinValue)$/\.<span class=\"otherBuiltin\">\1<\/span>/" <<< "$input")"
+done
+
+######################################
+# Built-in global functions handling #
+######################################
+
+echo "Colorizing built-in global functions.."
+
+builtinMethods=("print")
+
+for builtinMethod in ${builtinMethods[@]} 
+do
+  input="$(sed "s/\.\($builtinMethod\)\([^[:alnum:]]\)/\.<span class=\"otherBuiltin\">\1<\/span>\2/g" <<< "$input")"
+  
+  input="$(sed -E "s/\.($builtinMethod)$/\.<span class=\"otherBuiltin\">\1<\/span>/" <<< "$input")"
 done
 
 #################
