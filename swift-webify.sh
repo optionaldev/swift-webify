@@ -1,22 +1,34 @@
 #!/bin/bash
 
+# Read the content, line by line and adds that line as an element of the array 'result'
+# The content is read from the folder marked
+# '$1' gets replace by the first argument passed, forming the path of the file to read
+function readMarked() {
+  while IFS= read -r line; do
+    result+=($line);
+  done < "marked/$1.txt"
+
+  echo ${result[*]}
+}
+
 # Read contents of file into variable called 'input'
 input=$(<input.txt)
 
-# Capture and replace angle brackets with the html code
+# Capture and replace angle brackets with the equivalent html code
+# In Swift we have generics which have the format <Type> which conflicts with html tags that have the same format
 input="$(sed "s/</\&lt;/" <<< "$input")"
 input="$(sed "s/>/\&gt;/" <<< "$input")"
-
-
-#   input="$(sed -E "s/([[:alnum:][:space:]])\=([[:alnum:][:space:]])/\1<span class=\"operator\">\=<\/span>\2/g" <<< "$input")"
 
 ####################
 # Keyword handling #
 ####################
 
 echo "Colorizing keywords.."
+ 
+keywords=$(readMarked keywords)
 
-keywords=("class" "didSet" "else" "false" "final" "func" "if" "in" "init" "import" "let" "nil" "private" "return" "self" "some" "static" "struct" "true" "var")
+# How to print the entire array
+# echo ${keywords[*]}
 
 for keyword in ${keywords[@]} 
 do
@@ -36,7 +48,7 @@ done
 
 echo "Colorizing built-in types.."
 
-builtinTypes=("Binding" "Bool" "Color" "Coordinator" "Context" "NotificationCenter" "NSObject" "ObservableObject" "ObservedObject" "NSRange" "NSString" "Published" "String" "State" "UITextField" "UITextFieldDelegate" "UIViewRepresentable" "UIViewRepresentableContext" "View" "VStack")
+builtinTypes=$(readMarked builtinTypes)
 
 for builtinType in ${builtinTypes[@]} 
 do
@@ -53,7 +65,7 @@ done
 
 echo "Colorizing operators.."
 
-operators=("&&" "\|\|" "\\$" "==" "\?\?")
+operators=$(readMarked operators)
 
 for operator in ${operators[@]} 
 do
@@ -73,7 +85,7 @@ input="$(sed "s/\([[:alnum:]|[:space:]]\)!\([[:alnum:]|[:space:]]\)/\1<p>!<\/p>\
 
 echo "Colorizing other built-in methods.."
 
-builtinValues=("addObserver" "autocapitalizationType" "background" "blue" "becomeFirstResponder" "center" "default" "coordinator" "delegate" "font" "isFirstResponder" "main" "none" "onChange" "red" "removeObserver" "replacingCharacters" "resignFirstResponder" "systemFont" "text" "textAlignment" "textColor" "textDidChangeNotification" "zero")
+builtinValues=$(readMarked builtinValues)
 
 for builtinValue in ${builtinValues[@]} 
 do
@@ -99,7 +111,9 @@ done
 # func handling #
 #################
 
-methods=("backwardUpdate" "dismantleUIView" "forwardUpdate" "makeCoordinator" "makeUIView" "textField" "updateUIView")
+echo "Colorizing functions names.."
+
+methods=$(readMarked functions)
 
 for method in ${methods[@]} 
 do
@@ -110,7 +124,7 @@ done
 # constants handling #
 ######################
 
-# constants=("\"\"")
+echo "Colorizing string & digit constants.."
 
 # Handle when "" is somewhere in the middle of the line of code, like before a && or ||
 input="$(sed "s/\([^[:alnum:]]\)\"\"\([^[:alnum:]]\)/\1<q>\"\"<\/q>\2/g" <<< "$input")"
