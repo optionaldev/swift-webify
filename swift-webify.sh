@@ -29,7 +29,7 @@ function generateOutput() {
   keywords=$(readMarked keywords)
   
   # How to print the entire array
-  # echo ${keywords[*]}
+#   echo ${keywords[*]}
   
   for keyword in ${keywords[@]} 
   do
@@ -86,13 +86,13 @@ function generateOutput() {
   
 #   echo "Colorizing other built-in methods.."
   
-  builtinValues=$(readMarked builtinValues)
+  values=$(readMarked values)
   
-  for builtinValue in ${builtinValues[@]} 
+  for value in ${values[@]} 
   do
-    input="$(sed "s/\.\($builtinValue\)\([^[:alnum:]]\)/\.<i>\1<\/i>\2/g" <<< "$input")"
+    input="$(sed "s/\.\($value\)\([^[:alnum:]]\)/\.<i>\1<\/i>\2/g" <<< "$input")"
     
-    input="$(sed -E "s/\.($builtinValue)$/\.<i>\1<\/i>/" <<< "$input")"
+    input="$(sed -E "s/\.($value)$/\.<i>\1<\/i>/" <<< "$input")"
   done
   
   ######################################
@@ -136,7 +136,6 @@ function generateOutput() {
   # Handle when "" is the final thing on the line of code
   input="$(sed -E "s/\"\"$/<q>\"\"<\/q>/" <<< "$input")"
   
-  # write to output file
   echo "$input" 
 }
 
@@ -147,10 +146,10 @@ expectedOutput=$(<"test/output.txt")
 
 # input=$(<input.txt)
 
-if [ expectedOutput != generatedOutput ]; then
-  echo "Test failed"
-  echo "$generatedOutput"
+if [ "$expectedOutput" != "$generatedOutput" ]; then
+  echo "Test failed!"
 else 
+  echo "Test succeeded! Now generating output.txt based on input.txt."
   echo "$(generateOutput "input")" >output.txt
 fi
 
