@@ -92,7 +92,7 @@ function generateOutput() {
   do
     input="$(sed "s/\.\($value\)\([^[:alnum:]]\)/\.<i>\1<\/i>\2/g" <<< "$input")"
     
-    input="$(sed -E "s/\.($value)$/\.<i>\1<\/i>/" <<< "$input")"
+    input="$(sed -E "s/\.($value)$/\.<i>\1<\/i>/g" <<< "$input")"
   done
   
   ######################################
@@ -135,6 +135,11 @@ function generateOutput() {
   
   # Handle when "" is the final thing on the line of code
   input="$(sed -E "s/\"\"$/<q>\"\"<\/q>/" <<< "$input")"
+  
+  # After colorizing strings, make sure to uncolorize the part 
+  # of the string that refers to a variable's value
+#   input="$(sed "s/(\(.*\))/123/" <<< "$input")"
+  input="$(sed "s/[\](\([[:alnum:]]*\))/<a>\\\(\1)<\/a>/g" <<< "$input")"  
   
   echo "$input" 
 }

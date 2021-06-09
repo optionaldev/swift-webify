@@ -1,0 +1,61 @@
+import SwiftUI
+
+struct CustomTextField: UIViewRepresentable {
+  @Binding var text: String
+  @Binding var firstResponder: Bool
+
+  func makeUIView(context: Context) -> UITextField {
+    let textField = UITextField()
+    textField.delegate = context.coordinator
+    return textField
+  }
+
+  func updateUIView(_ textField: UITextField, context: Context) {
+    textField.text = text
+    if firstResponder && !textField.isFirstResponder {
+      textField.becomeFirstResponder()
+    } else if !firstResponder && textField.isFirstResponder {
+      textField.resignFirstResponder()
+    }
+  }
+  
+  func makeCoordinator() -> Coordinator {
+    return Coordinator(text: $text)
+  }
+  
+  final class Coordinator: NSObject, UITextFieldDelegate {
+    @Binding var text: String
+    
+    init(text: Binding<String>) {
+      _text = text
+    }
+    
+    func textField(_ textField: UITextField,
+                   shouldChangeCharactersIn range: NSRange,
+                   replacementString string: String) -> Bool {
+      text = NSString(string: textField.text ?? "")
+        .replacingCharacters(in: range, with: string)
+      return true
+    }
+  }
+}
+
+final class ViewModel: ObservableObject {
+  init() {}
+  
+  @Published var text = "" {
+    didSet {
+      print("didSet text = \(text)")
+    }
+  }
+}
+
+struct ContentView: View {
+  @ObservedObject private var viewModel = ViewModel()
+  
+  var body: some View {
+    CustomTextField(text: $viewModel.text)
+      .frame(width: 150, height: 30)
+      .background(Color.gray)
+  }
+}

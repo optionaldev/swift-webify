@@ -9,6 +9,7 @@ default
 coordinator
 delegate
 font
+gray
 isFirstResponder
 main
 none

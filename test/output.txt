@@ -1,0 +1,61 @@
+<a>import</a> SwiftUI
+
+<a>struct</a> CustomTextField: <b>UIViewRepresentable</b> {
+  @<b>Binding</b> <a>var</a> text: <b>String</b>
+  @<b>Binding</b> <a>var</a> firstResponder: <b>Bool</b>
+
+  <a>func</a> <s>makeUIView</s>(context: <b>Context</b>) -&gt; <b>UITextField</b> {
+    <a>let</a> textField = <b>UITextField</b>()
+    textField.<i>delegate</i> = context.<i>coordinator</i>
+    <a>return</a> textField
+  }
+
+  <a>func</a> <s>updateUIView</s>(_ textField: <b>UITextField</b>, context: <b>Context</b>) {
+    textField.<i>text</i> = text
+    <a>if</a> firstResponder <u>&&</u> <p>!</p>textField.<i>isFirstResponder</i> {
+      textField.<i>becomeFirstResponder</i>()
+    } <a>else</a> <a>if</a> <p>!</p>firstResponder <u>&&</u> textField.<i>isFirstResponder</i> {
+      textField.<i>resignFirstResponder</i>()
+    }
+  }
+  
+  <a>func</a> <s>makeCoordinator</s>() -&gt; <b>Coordinator</b> {
+    <a>return</a> <b>Coordinator</b>(text: <u>$</u>text)
+  }
+  
+  <a>final</a> <a>class</a> <b>Coordinator</b>: <b>NSObject</b>, <b>UITextFieldDelegate</b> {
+    @<b>Binding</b> <a>var</a> text: <b>String</b>
+    
+    <a>init</a>(text: <b>Binding</b>&lt;<b>String</b>&gt;) {
+      <u>_</u>text = text
+    }
+    
+    <a>func</a> <s>textField</s>(_ textField: <b>UITextField</b>,
+                   shouldChangeCharactersIn range: <b>NSRange</b>,
+                   replacementString string: <b>String</b>) -&gt; <b>Bool</b> {
+      text = <b>NSString</b>(string: textField.<i>text</i> <u>??</u> <q>""</q>)
+        .<i>replacingCharacters</i>(in: range, with: string)
+      <a>return</a> <a>true</a>
+    }
+  }
+}
+
+<a>final</a> <a>class</a> ViewModel: <b>ObservableObject</b> {
+  <a>init</a>() {}
+  
+  @<b>Published</b> <a>var</a> text = <q>""</q> {
+    <a>didSet</a> {
+      <i>print</i>(<q>"didSet text = <a>\(text)</a>"</q>)
+    }
+  }
+}
+
+<a>struct</a> ContentView: <b>View</b> {
+  @<b>ObservedObject</b> <a>private</a> <a>var</a> viewModel = ViewModel()
+  
+  <a>var</a> body: <a>some</a> <b>View</b> {
+    CustomTextField(text: <u>$</u>viewModel.<i>text</i>)
+      .frame(width: 150, height: 30)
+      .<i>background</i>(<b>Color</b>.<i>gray</i>)
+  }
+}
